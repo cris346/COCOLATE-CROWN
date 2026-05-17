@@ -1,31 +1,30 @@
 package com.crown.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
-/**
- * CORS configuration to allow the Angular frontend to call the API.
- */
 @Configuration
 public class CorsConfig {
 
-    @Value("${app.cors.allowed-origins}")
-    private String allowedOrigins;
-
     @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/**")
-                        .allowedOrigins(allowedOrigins.split(","))
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-            }
-        };
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        
+        // Permitir credenciales (cookies, auth headers)
+        config.setAllowCredentials(true);
+        
+        // ⚠️ IMPORTANTE: Aquí pones la URL EXACTA de tu frontend en Vercel sin la barra / al final
+        config.addAllowedOrigin("https://fronten-cocolate.vercel.app"); 
+        
+        // Permitir todos los headers y métodos HTTP (GET, POST, etc.)
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
     }
 }
